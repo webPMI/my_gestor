@@ -1,8 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_sign_in_web/web_only.dart' as google_sign_in_web;
+
+// Conditional import: usa el botón real de Google en web y un stub en VM/nativo.
+import 'google_button_stub.dart'
+    if (dart.library.js_interop) 'package:google_sign_in_web/web_only.dart'
+    as google_sign_in_web;
 
 import '../auth/auth_service.dart';
 import '../components/my_button.dart';
