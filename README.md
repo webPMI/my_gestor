@@ -1,16 +1,30 @@
 # my_gestor
 
-A new Flutter project.
+Base de una aplicacion Flutter para un gestor contable multiplataforma.
 
-## Getting Started
+Proyecto en desarrollo por Servicio Web PMI.
+Responsable del trabajo actual: Exequiel Paez.
 
-This project is a starting point for a Flutter application.
+## Requisitos
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter 3.35 o superior
+- Dart 3.9 o superior
+- JDK 17 para Android
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Puesta en marcha
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```
+
+## Equipo
+
+- Servicio Web PMI
+- Exequiel Paez
+
+## Notas de actualizacion
+
+- El proyecto queda alineado con la plantilla Flutter estable reciente para Android: Java 17, Gradle 8.14, AGP 8.11.1 y Kotlin 2.2.20.
+- Las dependencias directas quedaron actualizadas a versiones recientes compatibles con Flutter moderno.
+- Si se modifica `pubspec.yaml`, regenerar `pubspec.lock` con `flutter pub get`.
