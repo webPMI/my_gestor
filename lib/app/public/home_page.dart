@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../auth/auth_service.dart';
+import '../layout/app_layout_scope.dart';
 import '../localization/app_localizations.dart';
 import '../utils/app_routes.dart';
 import '../utils/app_metadata.dart';
@@ -13,12 +16,44 @@ class HomePage extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context);
+    final layout = AppLayoutScope.of(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(AppMetadata.appName),
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: FilledButton.icon(
+              onPressed: () async {
+                if (kIsWeb) {
+                  if (context.mounted) {
+                    context.go(AppRoutes.login);
+                  }
+                  return;
+                }
+
+                try {
+                  await authService.signInWithGoogle();
+                } on BackendNotConfiguredException catch (error) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(error.toString())));
+                  }
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.loginAuthError)),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.g_mobiledata_rounded),
+              label: Text(l10n.loginGoogle),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: FilledButton.tonalIcon(
@@ -61,192 +96,219 @@ class HomePage extends StatelessWidget {
                 color: colorScheme.primary.withValues(alpha: 0.10),
               ),
             ),
-            SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1120),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                    child: SingleChildScrollView(
+            SingleChildScrollView(
+              child: SafeArea(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: layout.homeMaxWidth),
+                    child: Padding(
+                      padding: layout.pagePadding,
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final isCompact = constraints.maxWidth < 860;
 
-                          return Flex(
-                            direction: isCompact
-                                ? Axis.vertical
-                                : Axis.horizontal,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 12,
-                                child: _Reveal(
-                                  delay: 0,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.62,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            999,
-                                          ),
-                                          border: Border.all(
-                                            color: colorScheme.outlineVariant,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          l10n.homeBadge,
-                                          style: theme.textTheme.labelLarge,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 24),
-                                      Text(
-                                        l10n.homeHeadline,
-                                        style: theme.textTheme.displaySmall,
-                                      ),
-                                      const SizedBox(height: 18),
-                                      ConstrainedBox(
-                                        constraints: const BoxConstraints(
-                                          maxWidth: 620,
-                                        ),
-                                        child: Text(
-                                          l10n.homeBody,
-                                          style: theme.textTheme.titleMedium
-                                              ?.copyWith(
-                                                color: colorScheme
-                                                    .onSurfaceVariant,
-                                                height: 1.5,
-                                              ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 28),
-                                      Wrap(
-                                        spacing: 12,
-                                        runSpacing: 12,
-                                        children: [
-                                          _FeatureChip(
-                                            label: l10n.homeFeatureCompanies,
-                                          ),
-                                          _FeatureChip(
-                                            label: l10n.homeFeatureRecords,
-                                          ),
-                                          _FeatureChip(
-                                            label: l10n.homeFeatureReports,
-                                          ),
-                                          _FeatureChip(
-                                            label: l10n.homeFeatureTools,
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 32),
-                                      Wrap(
-                                        spacing: 12,
-                                        runSpacing: 12,
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          FilledButton.icon(
-                                            onPressed: () {
-                                              context.go(AppRoutes.login);
-                                            },
-                                            icon: const Icon(
-                                              Icons.rocket_launch_rounded,
-                                            ),
-                                            label: Text(
-                                              l10n.homeCtaOpenPlatform,
-                                            ),
-                                          ),
-                                          OutlinedButton.icon(
-                                            onPressed: () {},
-                                            icon: const Icon(
-                                              Icons.insights_rounded,
-                                            ),
-                                            label: Text(
-                                              l10n.homeCtaViewExperience,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 20),
-                                      Text(
-                                        '${AppMetadata.companyName} · ${AppMetadata.ownerName}',
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(
-                                              color:
-                                                  colorScheme.onSurfaceVariant,
-                                            ),
-                                      ),
-                                    ],
+                          final heroSection = _Reveal(
+                            delay: 0,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: isCompact ? 0 : 28,
-                                height: isCompact ? 28 : 0,
-                              ),
-                              Expanded(
-                                flex: 10,
-                                child: _Reveal(
-                                  delay: 120,
-                                  child: Card(
-                                    clipBehavior: Clip.antiAlias,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(28),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.auto_graph_rounded,
-                                                color: colorScheme.primary,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                l10n.homePanelTitle,
-                                                style:
-                                                    theme.textTheme.titleLarge,
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 24),
-                                          _MetricTile(
-                                            title:
-                                                l10n.homeMetricMonthlyFlowTitle,
-                                            value: '+18.4%',
-                                            caption: l10n
-                                                .homeMetricMonthlyFlowCaption,
-                                          ),
-                                          const SizedBox(height: 14),
-                                          _MetricTile(
-                                            title:
-                                                l10n.homeMetricOperationsTitle,
-                                            value: '1,284',
-                                            caption: l10n
-                                                .homeMetricOperationsCaption,
-                                          ),
-                                          const SizedBox(height: 14),
-                                          _MetricTile(
-                                            title: l10n.homeMetricAlertsTitle,
-                                            value: '96%',
-                                            caption:
-                                                l10n.homeMetricAlertsCaption,
-                                          ),
-                                        ],
-                                      ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.62),
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(
+                                      color: colorScheme.outlineVariant,
                                     ),
                                   ),
+                                  child: Text(
+                                    l10n.homeBadge,
+                                    style: theme.textTheme.labelLarge,
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  l10n.homeHeadline,
+                                  style: theme.textTheme.displaySmall,
+                                ),
+                                const SizedBox(height: 18),
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 620,
+                                  ),
+                                  child: Text(
+                                    l10n.homeBody,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          color: colorScheme.onSurfaceVariant,
+                                          height: 1.5,
+                                        ),
+                                  ),
+                                ),
+                                const SizedBox(height: 28),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: [
+                                    _FeatureChip(
+                                      label: l10n.homeFeatureCompanies,
+                                    ),
+                                    _FeatureChip(
+                                      label: l10n.homeFeatureRecords,
+                                    ),
+                                    _FeatureChip(
+                                      label: l10n.homeFeatureReports,
+                                    ),
+                                    _FeatureChip(label: l10n.homeFeatureTools),
+                                  ],
+                                ),
+                                const SizedBox(height: 32),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    FilledButton.tonalIcon(
+                                      onPressed: () async {
+                                        if (kIsWeb) {
+                                          if (context.mounted) {
+                                            context.go(AppRoutes.login);
+                                          }
+                                          return;
+                                        }
+
+                                        try {
+                                          await authService.signInWithGoogle();
+                                        } on BackendNotConfiguredException catch (
+                                          error
+                                        ) {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(error.toString()),
+                                              ),
+                                            );
+                                          }
+                                        } catch (_) {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  l10n.loginAuthError,
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      icon: const Icon(
+                                        Icons.g_mobiledata_rounded,
+                                      ),
+                                      label: Text(l10n.loginGoogle),
+                                    ),
+                                    FilledButton.icon(
+                                      onPressed: () {
+                                        context.go(AppRoutes.login);
+                                      },
+                                      icon: const Icon(
+                                        Icons.rocket_launch_rounded,
+                                      ),
+                                      label: Text(l10n.homeCtaOpenPlatform),
+                                    ),
+                                    OutlinedButton.icon(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.insights_rounded),
+                                      label: Text(l10n.homeCtaViewExperience),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  '${AppMetadata.companyName} · ${AppMetadata.ownerName}',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          final statsPanel = _Reveal(
+                            delay: 120,
+                            child: Card(
+                              clipBehavior: Clip.antiAlias,
+                              child: Padding(
+                                padding: const EdgeInsets.all(28),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.auto_graph_rounded,
+                                          color: colorScheme.primary,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            l10n.homePanelTitle,
+                                            style: theme.textTheme.titleLarge,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 24),
+                                    _MetricTile(
+                                      title: l10n.homeMetricMonthlyFlowTitle,
+                                      value: '+18.4%',
+                                      caption:
+                                          l10n.homeMetricMonthlyFlowCaption,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    _MetricTile(
+                                      title: l10n.homeMetricOperationsTitle,
+                                      value: '1,284',
+                                      caption: l10n.homeMetricOperationsCaption,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    _MetricTile(
+                                      title: l10n.homeMetricAlertsTitle,
+                                      value: '96%',
+                                      caption: l10n.homeMetricAlertsCaption,
+                                    ),
+                                  ],
                                 ),
                               ),
+                            ),
+                          );
+
+                          if (isCompact) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                heroSection,
+                                const SizedBox(height: 28),
+                                statsPanel,
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(flex: 12, child: heroSection),
+                              const SizedBox(width: 28),
+                              Expanded(flex: 10, child: statsPanel),
                             ],
                           );
                         },

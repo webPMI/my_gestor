@@ -99,8 +99,13 @@ class AppLocalizations {
   String get loginGoogle => _t('Continuar con Google', 'Continue with Google');
   String get loginOrContinue => _t('o continuá con', 'or continue with');
   String get loginBackendMissing => _t(
-    'Configura Firebase y Supabase para habilitar el acceso.',
-    'Configure Firebase and Supabase to enable access.',
+    'Configura Firebase para habilitar el acceso.',
+    'Configure Firebase to enable access.',
+  );
+
+  String get loginSupabaseOptional => _t(
+    'Supabase no esta configurado. El acceso funciona, pero la sincronizacion de perfiles queda desactivada.',
+    'Supabase is not configured. Sign-in works, but profile sync is disabled.',
   );
   String get loginAuthError =>
       _t('No se pudo completar el acceso.', 'Could not complete sign-in.');

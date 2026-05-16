@@ -21,7 +21,8 @@ class AuthService extends ChangeNotifier {
 
   firebase_auth.User? get currentUser => _currentUser;
   bool get isSignedIn => _currentUser != null;
-  bool get firebaseEnabled => BackendConfig.firebaseOptions != null;
+  bool get firebaseEnabled =>
+      BackendConfig.firebaseOptions != null || Firebase.apps.isNotEmpty;
   bool get supabaseEnabled => BackendConfig.hasSupabase;
 
   Future<void> initialize() async {

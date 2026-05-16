@@ -1,6 +1,5 @@
 // Tests de widget para las pantallas públicas (Login).
 // HomePage se omite aquí porque su layout con Expanded requiere tests de integración.
-// Ver TODO.md → Tests → "Tests de integración para flujo login → dashboard".
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,8 +19,14 @@ Widget _wrap(WidgetTester tester, Widget child) {
     initialLocation: '/',
     routes: [
       GoRoute(path: '/', builder: (context, state) => child),
-      GoRoute(path: AppRoutes.login, builder: (context, state) => const Login()),
-      GoRoute(path: AppRoutes.home, builder: (context, state) => const Scaffold()),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const Login(),
+      ),
+      GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) => const Scaffold(),
+      ),
     ],
   );
 

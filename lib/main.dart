@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'app/backend/backend_bootstrap.dart';
+import 'app/layout/app_layout_scope.dart';
 import 'app/localization/app_localizations.dart';
 import 'app/localization/app_language.dart';
 import 'app/theme/app_theme.dart';
@@ -11,6 +13,16 @@ Future<void> main() async {
   await BackendBootstrap.initialize();
   await authService.initialize();
   runApp(const MyApp());
+}
+
+/// Habilita scroll con mouse y trackpad en Flutter web / Linux desktop.
+class _DesktopScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+  };
 }
 
 class MyApp extends StatelessWidget {
@@ -39,6 +51,13 @@ class MyApp extends StatelessWidget {
         return AppLanguage.defaultLocale;
       },
       routerConfig: router,
+      builder: (context, child) {
+        if (child == null) {
+          return const SizedBox.shrink();
+        }
+        return AppLayoutProvider(child: child);
+      },
+      scrollBehavior: _DesktopScrollBehavior(),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
     );

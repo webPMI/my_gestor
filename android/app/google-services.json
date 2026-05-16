@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "861380270348",
+    "project_id": "my-gestor",
+    "storage_bucket": "my-gestor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861380270348:android:dd19067c7f07aa42b21129",
+        "android_client_info": {
+          "package_name": "com.webpmi.mygestor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBghlhfFZIGixmFuMPRt0gw91kVBq2Quno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
